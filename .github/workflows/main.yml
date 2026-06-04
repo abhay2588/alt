@@ -16,14 +16,16 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install yt-dlp
+      - name: Install latest yt-dlp
         run: |
           python -m pip install --upgrade pip
-          pip install -U yt-dlp
+          pip install --upgrade yt-dlp
+          node --version
+          yt-dlp --version
 
       - name: Create cookies file
         run: |
-          cat << 'EOF' > cookies.txt
+          cat > cookies.txt << 'EOF'
           ${{ secrets.YT_COOKIES }}
           EOF
 
@@ -31,14 +33,15 @@ jobs:
         run: |
           yt-dlp \
             --cookies cookies.txt \
+            --extractor-args "youtube:player_client=android,web" \
             --js-runtimes node \
             -g "https://www.youtube.com/@AajTak/live" \
             > aajtak.m3u8
 
-      - name: Show result
+      - name: Show URL
         run: cat aajtak.m3u8
 
-      - name: Commit changes
+      - name: Commit
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
